@@ -1,6 +1,7 @@
 package io.github.wndelix.Principal;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -8,60 +9,85 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
+import java.time.Duration;
 import java.util.List;
 
-// TODO: adicionar retorno null para respostas da api sem resultado. Provavelmente será implementado se aproveitando de erro 404.
-
 public class ViaCEPApi {
-    private String url = "https://viacep.com.br/ws/";
-
-    public String buildUrl(String busca) {
-        return url + busca + "/json";
-    }
-
     private HttpClient getClient() {
-        return HttpClient.newHttpClient();
+        return HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
     }
 
     private HttpRequest getRequest(String url) {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .GET().build();
+                .timeout(Duration.ofSeconds(15))
+                .GET()
+                .build();
     }
 
     List<CEPdto> getResponseEndereco(String url) {
-        HttpResponse<String> response = null;
-        var client = getClient();
-        var request = getRequest(url);
-        Gson gson = new Gson();
+        HttpResponse<String> response;
+        HttpClient client = getClient();
+        HttpRequest request = getRequest(url);
 
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (HttpTimeoutException e) {
+            System.out.println("Tempo esgotado ao consultar a API. Tente novamente.");
+            return null;
+        } catch (IOException e) {
+            System.out.println("Erro de rede. Verifique sua conexão.");
+            return null;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
         }
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        String jsonBody = response.body();
-        Type listType = new TypeToken<List<CEPdto>>() {}.getType();
 
-        List<CEPdto> enderecos = gson.fromJson(jsonBody, listType);
-        return enderecos;
+        if (response.statusCode() != 200) {
+            System.out.println("A API respondeu com status " + response.statusCode() + ".");
+            return null;
+        }
+
+        try {
+            Type listType = new TypeToken<List<CEPdto>>() {}.getType();
+            return new Gson().fromJson(response.body(), listType);
+        } catch (JsonSyntaxException e) {
+            System.out.println("Resposta inesperada da API.");
+            return null;
+        }
     }
 
     CEPdto getResponseCEP(String url) {
-        HttpResponse<String> response = null;
-        var client = getClient();
-        var request = getRequest(url);
-        Gson gson = new Gson();
+        HttpResponse<String> response;
+        HttpClient client = getClient();
+        HttpRequest request = getRequest(url);
 
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        }
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (HttpTimeoutException e) {
+            System.out.println("Tempo esgotado ao consultar a API. Tente novamente.");
+            return null;
+        } catch (IOException e) {
+            System.out.println("Erro de rede. Verifique sua conexão.");
+            return null;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
         }
 
-        String jsonBody = response.body();
-        return gson.fromJson(jsonBody, CEPdto.class);
+        if (response.statusCode() != 200) {
+            System.out.println("A API respondeu com status " + response.statusCode() + ".");
+            return null;
+        }
+
+        try {
+            return new Gson().fromJson(response.body(), CEPdto.class);
+        } catch (JsonSyntaxException e) {
+            System.out.println("Resposta inesperada da API.");
+            return null;
+        }
     }
 }
