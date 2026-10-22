@@ -17,13 +17,13 @@ public class Utils {
 
     private static void exibirBoasVindas() {
         System.out.println(CYAN + BOLD + """
-██╗   ██╗██╗ █████╗  ██████╗███████╗██████╗
-██║   ██║██║██╔══██╗██╔════╝██╔════╝██╔══██╗
-██║   ██║██║███████║██║     █████╗  ██████╔╝
-╚██╗ ██╔╝██║██╔══██║██║     ██╔══╝  ██╔═══╝
- ╚████╔╝ ██║██║  ██║╚██████╗███████╗██║
-  ╚═══╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝
-""" + RESET);
+            ██╗   ██╗██╗ █████╗  ██████╗███████╗██████╗      ██████╗██╗     ██╗
+            ██║   ██║██║██╔══██╗██╔════╝██╔════╝██╔══██╗    ██╔════╝██║     ██║
+            ██║   ██║██║███████║██║     █████╗  ██████╔╝    ██║     ██║     ██║
+            ╚██  ██╔╝██║██╔══██║██║     ██╔══╝  ██╔═══╝     ██║     ██║     ██║
+             ╚████╔╝ ██║██║  ██║╚██████╗███████╗██║         ╚██████╗███████╗██║
+              ╚═══╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝          ╚═════╝╚══════╝╚═╝
+            """ + RESET);
     }
 
     public static void interfaceUser (Scanner sc) {
@@ -36,7 +36,6 @@ public class Utils {
             System.out.print(CYAN + """
                 [1] CEP
                 [2] Endereço
-    
                 [3] Sair
     
                 """ + RESET);
@@ -57,18 +56,14 @@ public class Utils {
 
             switch (userInput) {
                 case 1 -> {
-                    //System.out.print("\r                                           \r");
                     pesquisaCEP(sc);
                 }
                 case 2 -> {
-                    //System.out.print("\r                                           \r");
                     pesquisaEndereco(sc);
                 }
 
                 case 3 -> {
-                    //System.out.print("\r                                           \r");
                     System.out.println(CYAN + "Saindo..." + RESET);
-                    //limparTela();
                     userContinue = false;
                 }
 
@@ -192,7 +187,7 @@ public class Utils {
             }
         }
         else {
-            System.out.println("Nenhum endereço encontrado.");
+            System.out.println(YELLOW + "Nenhum endereço encontrado." + RESET);
         }
         System.out.println(RESET);
     }
